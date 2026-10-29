@@ -3,38 +3,33 @@
 Fiche de référence des commandes « / » de Claude Code, orientée Growth Marketing (recherche d'emploi, automatisation, CRM).
 Version interactive (commentaires et questions) : https://claude.ai/artifact/Pe3NtALc218q6bT32QVRDF
 
-Mise à jour : 25 octobre 2026 · Source : https://code.claude.com/docs/en/commands
+Mise à jour : 29 octobre 2026 · Source : https://code.claude.com/docs/en/commands
 
 ## Mode d'emploi
 - Tape « / » en début de message, puis quelques lettres pour filtrer.
 - Deux familles : commandes natives (réglages, mémoire, coûts) et skills perso (/brief-matin, /cv-updater…).
 - Le texte après la commande devient son argument : `/cv-updater https://lien-offre`.
 
-## Top 8
+## Top 8 (commandes visibles dans le menu de l'app)
 | # | Commande | Usage | Exemple |
 |---|---|---|---|
 | 1 | `/plan` | Claude propose un plan avant d'agir | `/plan crée un workflow n8n qui envoie les leads HubSpot chauds sur Slack` |
-| 2 | `/schedule` | Tâche programmée dans le cloud | `/schedule chaque lundi 8h30, liste 10 offres Growth Manager Paris` |
-| 3 | `/loop` | Répétition pendant la session | `/loop 30m vérifie si j'ai reçu une réponse de recruteur dans Gmail` |
-| 4 | `/model` + `/effort` | Choisir le modèle et le niveau de réflexion | `/effort low` pour un mail, `/effort high` pour une stratégie |
-| 5 | `/compact` | Résumer pour libérer du contexte | `/compact garde uniquement les décisions sur la campagne Lemlist` |
-| 6 | `/clear` | Nouvelle conversation | `/clear` entre deux candidatures |
-| 7 | `/rewind` | Revenir en arrière (alias `/undo`) | `/rewind` après une réécriture ratée |
-| 8 | `/usage` | Consommation du forfait | `/usage` le vendredi |
+| 2 | `/effort` | Niveau de réflexion | `/effort low` pour un mail, `/effort high` pour une stratégie |
+| 3 | `/model` | Choisir le modèle | Sonnet pour les relances, Opus pour un CV |
+| 4 | `/fast` | Mode rapide | Avant une série de petites retouches |
+| 5 | `/skills` | Lister et activer ses skills | Taper « cv » pour retrouver `/cv-updater` |
+| 6 | `/usage` | Consommation du forfait | Le vendredi |
+| 7 | `/permissions` | Ce que Claude fait sans demander | Autoriser Gmail en lecture |
+| 8 | `/config` | Paramètres généraux | Fixer Sonnet par défaut |
 
-Bonus : `/btw`, `/rename`, `/resume`.
+Pour programmer un rappel : skill `/replanifier` dans une nouvelle session, ou la page Tâches planifiées (https://claude.ai/code/routines).
 
-## Récap par catégorie
-| Catégorie | Commandes |
+## Récap
+Règle : si une commande n'apparaît pas quand tu tapes « / », elle n'existe pas dans ton app.
+
+| Dans le menu de l'app | Terminal uniquement |
 |---|---|
-| Réglages | `/model`, `/effort`, `/fast`, `/config`, `/permissions`, `/sandbox` |
-| Conversation | `/clear`, `/compact`, `/rewind`, `/btw`, `/resume`, `/rename`, `/branch`, `/recap`, `/export`, `/copy` |
-| Mode de travail | `/plan`, `/goal`, `/subtask`, `/fork`, `/tasks` |
-| Automatisation | `/schedule`, `/loop`, `/workflows`, `/deep-research` |
-| Outils | `/skills`, `/plugin`, `/mcp`, `/memory`, `/init` |
-| Création | `/slides`, `/design`, `/dataviz` |
-| Coûts | `/usage` (`/cost`, `/stats`), `/usage-credits` |
-| Aide | `/help`, `/doctor`, `/status`, `/powerup` |
+| `/model`, `/effort`, `/fast`, `/config`, `/permissions`, `/sandbox`, `/plan`, `/skills`, `/plugin`, `/workflows`, `/usage`, `/usage-credits`, `/storage` | `/schedule`, `/loop`, `/powerup`, `/clear`, `/resume`, `/rename`, `/compact`, `/rewind`, `/btw` |
 
 ## Skills perso
 | Commande | Exemple |
@@ -50,14 +45,13 @@ Bonus : `/btw`, `/rename`, `/resume`.
 | `/renommer-conversations`, `/tri-fichiers` | Rangement |
 
 ## Pièges
-- La commande doit être en tout début de message.
-- `/clear` efface le contexte : `/rename` avant.
-- `/loop` s'arrête avec la session ; `/schedule` tourne ordi éteint.
-- `/rewind` ne rappelle pas un mail envoyé.
+- Une commande absente du menu n'existe pas dans l'app : beaucoup d'articles parlent du terminal.
+- Les rappels se créent depuis une session ordinaire (bouton Créer), sinon ils sont invisibles dans Tâches planifiées.
+- Un rappel ponctuel = « Une fois », pas « Quotidien ».
 - `/effort max` consomme beaucoup de quota.
 
 ## Ressources
 - Référence des commandes : https://code.claude.com/docs/en/commands
 - Skills : https://code.claude.com/docs/en/skills
-- Tâches programmées : https://code.claude.com/docs/en/routines
+- Tâches planifiées : https://claude.ai/code/routines
 - Mode plan : https://code.claude.com/docs/en/permission-modes
