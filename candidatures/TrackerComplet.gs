@@ -20,7 +20,7 @@ var CFG = {
   LABEL_IN: 'Job-2025',                 // libellé posé par tes filtres Gmail
   LABEL_DONE: 'Job-2025-Traite',
   LABEL_REVIEW: 'Job-2025-A-verifier',  // mails que l'IA n'arrive pas à lire / non-candidatures
-  MY_EMAILS: ['marie.gainche@gmail.com'],
+  MY_EMAILS: ['marie.gainche@gmail.com', 'mariegainche@gmail.com', 'marie.gainche@outlook.fr'],
   BATCH: 15,                            // threads par exécution (toutes les 15 min)
   MAX_RUNTIME_MS: 5 * 60 * 1000,        // marge sous la limite Apps Script de 6 min
   GEMINI_MODEL: 'gemini-2.5-flash',
