@@ -4,9 +4,9 @@
 
 - **Sheet** : [Candidatures 2026](https://docs.google.com/spreadsheets/d/1J9SbqQSrsYOjXmo_fdnKQ6aEU8MDo6DC0j17T2GcYs0/edit) (ID `1J9SbqQSrsYOjXmo_fdnKQ6aEU8MDo6DC0j17T2GcYs0`)
 - **Onglets** : `Candidatures` · `📊 Dashboard` · `AB Test` · `📊 Dashboard AB Test`
-- **Projet Apps Script** (Extensions → Apps Script) : 2 fichiers seulement
-  - `Code.gs` : import Gmail, IA, liens, nettoyage, diagnostic, menu
-  - `Dashboard.gs` : les deux dashboards + graphiques
+- **Projet Apps Script** « Automatisation des mails job 2025 » (Extensions → Apps Script)
+  - Installé le 31/10/2026 : **`TrackerComplet.gs`** (= `Code.gs` + `Dashboard.gs`, globales en `var`) collé dans `Code.gs` **et** dans `Dashboard.gs` (doublon toléré, volontaire)
+  - Sources lisibles séparées : `Code.gs` (import, IA, liens, nettoyage, diagnostic, menu) et `Dashboard.gs` (dashboards)
 
 ## Comment ça marche
 
@@ -47,8 +47,8 @@ Chaque matin 6h : rafraichirDashboards() (bascule J / J-1)
 
 ## Installation / réinstallation
 
-1. Extensions → Apps Script. Supprimer les anciens fichiers (`script_lien_annonce`, `restaurer_dashboard`, `candidatures_2026`, `automate_job_to_sheet`).
-2. Créer `Code.gs` et `Dashboard.gs` avec le contenu de ce dossier.
+1. Extensions → Apps Script. Vider tous les fichiers existants.
+2. Coller `TrackerComplet.gs` (bouton 📋 « Copy raw file » sur GitHub, sinon le collage peut être tronqué) dans un fichier, Ctrl+S. Vérifier : 850 lignes, et Ctrl+F `const CFG` = 0 résultat.
 3. ⚙️ Paramètres du projet → Propriétés du script → `GEMINI_API_KEY` = clé [AI Studio](https://aistudio.google.com/apikey).
 4. Exécuter `installerTout` → autoriser.
 5. Une seule fois : Fichier → Créer une copie (sauvegarde), puis menu → 🧹 Nettoyer l'historique.
@@ -64,6 +64,8 @@ Chaque matin 6h : rafraichirDashboards() (bascule J / J-1)
 | Lien orange | Mail sans lien d'offre (ATS qui n'en met pas) | Coller le lien à la main |
 | Dashboard faux / cassé | Onglet renommé, cellules fusionnées | Menu → 📊 Rafraîchir les dashboards (reconstruit tout) |
 | « Exceeded maximum execution time » | Trop de mails d'un coup | Normal, le script s'arrête à 5 min et reprend 15 min plus tard |
+| `SyntaxError: Identifier 'CFG' has already been declared` | Un fichier contient encore une ancienne version (avec `const CFG`) | Ctrl+F `const CFG` dans chaque fichier ; recoller `TrackerComplet.gs` là où il y a un résultat |
+| `SyntaxError: Unexpected end of input` | Collage tronqué | Recoller avec le bouton 📋 de GitHub |
 | Erreur `GEMINI_API_KEY manquante` | Propriété du script absente | Étape 3 de l'installation |
 
 Journal des exécutions : Apps Script → ⏰ Exécutions (chaque run y logue ce qu'il a fait).
@@ -91,5 +93,6 @@ Les versions d'origine sont dans [`archive/`](archive/) (clé API retirée).
 
 ## Historique
 
+- **v4 installée le 31/10/2026** : Diagnostic tout ✅ (clé, Gemini, 3 triggers).
 - **v4 (31/10/2026)** : consolidation en 2 fichiers, corrections ci-dessus, menu, diagnostic, nettoyage de l'historique.
 - v3 : import Gmail + Gemini, scan liens séparé, dashboards JS avec graphiques.
