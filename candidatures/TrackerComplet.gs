@@ -15,7 +15,7 @@
  */
 
 // ===================== CONFIGURATION =====================
-const CFG = {
+var CFG = {
   SHEET: 'Candidatures',
   LABEL_IN: 'Job-2025',                 // libellé posé par tes filtres Gmail
   LABEL_DONE: 'Job-2025-Traite',
@@ -29,36 +29,36 @@ const CFG = {
   NOUVELLE_CANDIDATURE_APRES_J: 30,     // même entreprise, ligne close depuis 30 j → nouvelle ligne
 };
 
-const COL = {
+var COL = {
   ENTREPRISE: 1, POSTE: 2, PLATEFORME: 3, SECTEUR: 4, TYPE: 5, STATUT: 6,
   DATE_ENVOI: 7, LIEN: 8, CONTACT: 9, ATS: 10, RESUME: 11, MAJ: 12, THREAD: 13,
 };
-const NB_COLS = 13;
-const ENTETES_AJOUTEES = { 12: 'Dernière MAJ', 13: 'Gmail thread ID' };
+var NB_COLS = 13;
+var ENTETES_AJOUTEES = { 12: 'Dernière MAJ', 13: 'Gmail thread ID' };
 
-const VALID_STATUSES = [
+var VALID_STATUSES = [
   'À faire', 'Pas commencé', 'Envoyé', 'En cours', 'Réponse reçue',
   'Stand-by', 'Entretien 1', 'Entretien 2', 'Refus', 'Terminé',
 ];
 // Un statut ne peut que « monter » (sauf nouvelle candidature)
-const STATUT_RANG = {
+var STATUT_RANG = {
   'À faire': 0, 'Pas commencé': 0, 'Envoyé': 1, 'En cours': 2, 'Réponse reçue': 3,
   'Stand-by': 3, 'Entretien 1': 4, 'Entretien 2': 5, 'Refus': 9, 'Terminé': 9,
 };
-const STATUTS_CLOS = ['Refus', 'Terminé'];
+var STATUTS_CLOS = ['Refus', 'Terminé'];
 
-const VALID_POSTES = [
+var VALID_POSTES = [
   'CRM Manager', 'Growth Manager', 'Responsable CRM', 'Responsable Acquisition',
   'Growth marketer', 'candidature spontanée', 'Inconnu', 'Responsable marketing',
   'Head of growth', 'Lead generation manager',
 ];
 
 // Plateforme = canal par lequel tu as postulé (les ATS = « Site carrière »)
-const PLATEFORMES_DASHBOARD = [
+var PLATEFORMES_DASHBOARD = [
   'LinkedIn', 'Welcome to the Jungle', 'Site carrière', 'HelloWork', 'Indeed',
   'Cadremploi', 'Apec', 'InfoJobs', 'Email direct',
 ];
-const PLATEFORME_REGLES = [
+var PLATEFORME_REGLES = [
   [/linked ?in/i, 'LinkedIn'],
   [/welcome ?to ?the ?jungle|wttj|welcome ?kit/i, 'Welcome to the Jungle'],
   [/hello ?work|regionsjob/i, 'HelloWork'],
@@ -71,10 +71,10 @@ const PLATEFORME_REGLES = [
 ];
 
 // Entreprises qui ne sont jamais la cible d'une candidature
-const ENTREPRISES_BLACKLIST = /^(inconnu|inconnue|linkedin|indeed|welcome to the jungle|hellowork|built ?in|glassdoor|jobgether|apec|cadremploi|infojobs|google|gmail)$/i;
+var ENTREPRISES_BLACKLIST = /^(inconnu|inconnue|linkedin|indeed|welcome to the jungle|hellowork|built ?in|glassdoor|jobgether|apec|cadremploi|infojobs|google|gmail)$/i;
 
 // Liens d'OFFRES reconnus (le reste est ignoré : logos, footers, pages d'accueil…)
-const JOB_URL_PATTERNS = [
+var JOB_URL_PATTERNS = [
   /linkedin\.com\/(?:comm\/)?jobs\/view\/\d+/i,
   /welcometothejungle\.com\/[a-z-]+\/companies\/[^/]+\/jobs\/[^/?#]+/i,
   /welcomekit\.co\/.+\/jobs?\//i,
@@ -95,7 +95,7 @@ const JOB_URL_PATTERNS = [
   /comeet\.com\/jobs\/[^/]+\/[^/]+\/[^/]+/i,
   /\/(?:jobs?|careers?|offres?(?:-d-emploi)?|emplois?|postes?|vacanc(?:y|ies)|annonces?)\/[^?#\s]{6,}/i,
 ];
-const URL_EXCLUSIONS = [
+var URL_EXCLUSIONS = [
   /unsubscribe|desabonn|désabonn|optout|opt-out|preferences|manage-?alerts/i,
   /\.(?:png|jpe?g|gif|svg|webp|ico)(?:[?#]|$)/i,
   /utm_content=(?:email-footer|logoheader|logo|footer)/i,
@@ -636,11 +636,11 @@ function _alerte(msg) { try { SpreadsheetApp.getUi().alert(msg); } catch (e) { /
 // Rafraîchi automatiquement après chaque import Gmail + chaque matin à 6h.
 // ============================================================
 
-const DASH = { NOM: '📊 Dashboard', NOM_AB: '📊 Dashboard AB Test', RELANCE_J: 7 };
+var DASH = { NOM: '📊 Dashboard', NOM_AB: '📊 Dashboard AB Test', RELANCE_J: 7 };
 
-const STATUTS_DASHBOARD = ['Envoyé', 'En cours', 'Réponse reçue', 'Stand-by', 'Entretien 1',
+var STATUTS_DASHBOARD = ['Envoyé', 'En cours', 'Réponse reçue', 'Stand-by', 'Entretien 1',
                            'Entretien 2', 'Refus', 'Terminé', 'À faire', 'Pas commencé'];
-const STATUTS_REPONSE = ['Réponse reçue', 'Stand-by', 'Entretien 1', 'Entretien 2', 'Refus', 'Terminé'];
+var STATUTS_REPONSE = ['Réponse reçue', 'Stand-by', 'Entretien 1', 'Entretien 2', 'Refus', 'Terminé'];
 
 function rafraichirDashboards() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
