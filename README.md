@@ -55,3 +55,6 @@ Règle : si une commande n'apparaît pas quand tu tapes « / », elle n'existe p
 - Skills : https://code.claude.com/docs/en/skills
 - Tâches planifiées : https://claude.ai/code/routines
 - Mode plan : https://code.claude.com/docs/en/permission-modes
+
+## Tracker candidatures (Google Sheets + Apps Script)
+Scripts, fiche mémoire et dépannage : [`candidatures/`](candidatures/README.md).
