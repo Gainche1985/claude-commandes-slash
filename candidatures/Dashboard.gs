@@ -212,6 +212,7 @@ function _dashboardABTest(ss, ab) {
       ['🎯 Entretiens obtenus', A.i, B.i, av(A.i, B.i)],
       ['📊 Taux entretien / réponse', pct(A.i, A.r), pct(B.i, B.r), av(eA, eB)],
     ]);
+    s.getRange(row + 2, 2, 5, 2).setNumberFormat('#,##0'); // évite « 300% » hérité d'un ancien format
     s.getRange(row + 1, 1, 1, 4).setFontWeight('bold').setBackground(GRIS);
     s.getRange(row, 1, 7, 4).setBorder(true, true, true, true, true, true, '#dadce0', SpreadsheetApp.BorderStyle.SOLID);
   });
