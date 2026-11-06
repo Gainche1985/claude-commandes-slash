@@ -880,16 +880,18 @@ function _dashboardABTest(ss, ab) {
 // qui crée la ligne dans « Candidatures » (Gemini extrait l'entreprise et le poste).
 //
 // Mise en place : Déployer → Nouveau déploiement → Application Web
-//   Exécuter en tant que : Moi · Qui a accès : Moi uniquement
+//   Exécuter en tant que : Moi · Qui a accès : Tout le monde
+//   (protégé par une clé secrète propre au favori : sans elle, rien n'est écrit)
 // puis menu 🔍 Candidatures → ➕ Installer le bouton Tracker.
 // ============================================================
 
-var BOUTON_BOOKMARKLET = "javascript:(()=>{const W='__W__';const g=s=>{const n=document.querySelector(s);return n?(n.content||n.innerText||''):''};const p=new URLSearchParams({u:location.href,t:document.title,h:g('h1'),o:g('meta[property=\"og:site_name\"]'),x:(document.body.innerText||'').replace(/\\s+/g,' ').slice(0,1200)});window.open(W+'?'+p.toString(),'_blank','width=560,height=420');})()";
+var BOUTON_BOOKMARKLET = "javascript:(()=>{const W='__W__';const g=s=>{const n=document.querySelector(s);return n?(n.content||n.innerText||''):''};const p=new URLSearchParams({k:'__K__',u:location.href,t:document.title,h:g('h1'),o:g('meta[property=\"og:site_name\"]'),x:(document.body.innerText||'').replace(/\\s+/g,' ').slice(0,1200)});window.open(W+'?'+p.toString(),'_blank','width=560,height=420');})()";
 
 /** Reçoit la page d'offre envoyée par le favori et ajoute la candidature. */
 function doGet(e) {
   const p = (e && e.parameter) || {};
   if (!p.u) return _pageBouton('ℹ️ Bouton Tracker', 'Clique sur le favori « ➕ Tracker » depuis la page d\'une offre.');
+  if (String(p.k || '') !== _tokenBouton()) return _pageBouton('⛔ Accès refusé', 'Clé du bouton invalide. Réinstalle le favori via le menu 🔍 Candidatures → ➕ Installer le bouton Tracker.');
 
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(20000)) return _pageBouton('⏳ Occupé', 'Le tracker est en cours de mise à jour. Réessaie dans une minute.');
@@ -999,7 +1001,7 @@ function installerBoutonTracker() {
 <textarea id="c" style="width:100%;height:70px;font-size:11px" readonly onclick="this.select()"></textarea>
 <p id="w" style="color:#c5221f"></p>
 <script>
-var TPL = ${JSON.stringify(BOUTON_BOOKMARKLET)};
+var TPL = ${JSON.stringify(BOUTON_BOOKMARKLET.replace('__K__', _tokenBouton()))};
 function build(){
   const w = document.getElementById('u').value.trim();
   const ok = /^https:\\/\\/script\\.google\\.com\\/.+\\/exec$/.test(w);
@@ -1021,6 +1023,14 @@ function _pageBouton(titre, msg) {
     (sheetUrl ? '<p><a href="' + sheetUrl + '" target="_blank">Ouvrir le tracker</a></p>' : '') +
     '<p style="color:#888;font-size:12px">Tu peux fermer cette fenêtre.</p></div>'
   ).setTitle(titre);
+}
+
+/** Clé secrète du favori (créée une fois, stockée dans les Propriétés du script). */
+function _tokenBouton() {
+  const props = PropertiesService.getScriptProperties();
+  let t = props.getProperty('BOUTON_TOKEN');
+  if (!t) { t = Utilities.getUuid().replace(/-/g, ''); props.setProperty('BOUTON_TOKEN', t); }
+  return t;
 }
 
 function _html(s) {

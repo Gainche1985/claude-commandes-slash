@@ -56,10 +56,10 @@ Chaque matin 6h : rafraichirDashboards() (bascule J / J-1)
 ## Bouton « ➕ Tracker » (sites sans mail de confirmation : InfoJobs, sites carrière…)
 
 - Fichier `BoutonTracker.gs` (inclus dans `TrackerComplet.gs`) : application Web `doGet` + favori Chrome.
-- Déploiement : Déployer → Nouveau déploiement → Application Web · Exécuter en tant que **Moi** · Accès **Moi uniquement**. Puis menu 🔍 Candidatures → ➕ Installer le bouton Tracker (colle l'URL `/exec`, glisse le bouton dans la barre de favoris).
+- Déploiement : Déployer → Nouveau déploiement → Application Web · Exécuter en tant que **Moi** · Accès **Tout le monde** (protégé par la clé secrète BOUTON_TOKEN des Propriétés du script, intégrée au favori). Puis menu 🔍 Candidatures → ➕ Installer le bouton Tracker (colle l'URL `/exec`, glisse le bouton dans la barre de favoris).
 - Usage : sur la page de l'offre, clic sur « ➕ Tracker » → ligne créée (statut Envoyé, plateforme déduite du site, lien exact). Doublon détecté par le lien. Entreprise non trouvée → « À compléter » en orange.
 - ⚠️ Après chaque modification du code : Déployer → Gérer les déploiements → ✏️ → Version : **Nouvelle version** → Déployer (sinon l'application Web garde l'ancien code). L'URL ne change pas.
-- Erreur « Impossible d'ouvrir le fichier » : plusieurs comptes Google connectés dans Chrome ; utiliser une fenêtre où marie.gainche@gmail.com est le compte par défaut.
+- « Impossible d'ouvrir le fichier » = accès « Moi uniquement » + navigateur (Comet) pas connecté au bon compte Google → d'où l'accès « Tout le monde » + clé. Changer la clé : supprimer BOUTON_TOKEN des Propriétés du script puis réinstaller le favori.
 
 ## Indeed
 - Les mails `indeedapply@indeed.com` n'ont pas le nom de l'employeur dans leur version texte : depuis le 06/11, le script lit aussi la version HTML (`_texteMail`).
