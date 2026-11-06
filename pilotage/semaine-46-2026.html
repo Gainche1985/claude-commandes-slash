@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}</style>
+<title>Pilotage semaine 46</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+/* Layout : une colonne de lecture, KPI en tête, semaine en liste, actions cochables */
+:root{
+  --bg:#f6f8f9; --surface:#ffffff; --ink:#14232b; --muted:#5b6b73; --line:#dbe3e7;
+  --accent:#c2410c; --accent-soft:#fdeee5; --ok:#15803d; --calm:#0f766e; --calm-soft:#e3f3f1;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Source Sans 3",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f171b; --surface:#16222a; --ink:#e6eef1; --muted:#9aaab2; --line:#2a3a43;
+  --accent:#fb923c; --accent-soft:#3a2416; --ok:#4ade80; --calm:#5eead4; --calm-soft:#123330; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f171b; --surface:#16222a; --ink:#e6eef1; --muted:#9aaab2; --line:#2a3a43;
+  --accent:#fb923c; --accent-soft:#3a2416; --ok:#4ade80; --calm:#5eead4; --calm-soft:#123330; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+.wrap{max-width:760px;margin:0 auto;padding-block:32px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:36px}
+h1,h2{font-family:var(--display);text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,6vw,40px);font-weight:800;letter-spacing:-.02em;line-height:1.1}
+h2{font-size:20px;font-weight:600}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.lede{margin:10px 0 0;color:var(--muted);max-width:60ch}
+.cap{display:inline-block;background:var(--accent-soft);color:var(--accent);font-weight:600;padding:2px 10px;border-radius:999px;font-size:14px}
+section{display:grid;gap:14px}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.kpis{grid-template-columns:1fr}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:2px}
+.kpi b{font-family:var(--display);font-size:30px;font-weight:800;font-variant-numeric:tabular-nums}
+.kpi span{color:var(--muted);font-size:14px}
+.kpi.alert b{color:var(--accent)}
+.src{font-size:13px;color:var(--muted);margin:0}
+ul.checks{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.checks label{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;cursor:pointer}
+.checks input{margin-top:4px;width:18px;height:18px;accent-color:var(--ok);flex:none}
+.checks input:checked + div{opacity:.55;text-decoration:line-through}
+.checks small{display:block;color:var(--muted)}
+.checks a{color:var(--calm)}
+.rule{background:var(--calm-soft);border-radius:10px;padding:16px 18px}
+.rule ol{margin:0;padding-left:20px;display:grid;gap:4px}
+.days{display:grid;gap:10px}
+.day{display:grid;grid-template-columns:88px minmax(0,1fr);gap:12px;border-top:1px solid var(--line);padding-top:10px}
+.day h3{margin:0;font-family:var(--display);font-size:15px;font-weight:600}
+.day h3 small{display:block;font-family:var(--body);font-weight:400;color:var(--muted);font-size:13px}
+.day ul{margin:0;padding:0;list-style:none;display:grid;gap:3px}
+.day li{display:flex;gap:10px}
+.day time{font-family:var(--mono);font-size:13px;color:var(--muted);min-width:46px;padding-top:2px;font-variant-numeric:tabular-nums}
+.me{color:var(--calm);font-weight:600}
+.key{color:var(--accent);font-weight:600}
+.q{display:grid;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.q code{font-family:var(--mono);font-size:12.5px;overflow-x:auto;white-space:pre-wrap;word-break:break-all;background:var(--bg);padding:8px;border-radius:6px}
+.q button{justify-self:start;font:inherit;font-size:14px;background:var(--ink);color:var(--bg);border:0;border-radius:6px;padding:6px 12px;cursor:pointer}
+.q button:focus-visible,.checks label:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.stop{margin:0;padding-left:20px;display:grid;gap:4px}
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Semaine du 9 au 13 novembre 2026</p>
+    <h1>Moins de candidatures, plus d'entretiens</h1>
+    <p class="lede"><span class="cap">Cap : Madrid d'abord</span> Une seule page pour la semaine. Ouvre-la le lundi à 9 h et le vendredi à 9 h 30, rien d'autre à consulter.</p>
+  </header>
+
+  <section aria-labelledby="k">
+    <h2 id="k">Où tu en es</h2>
+    <div class="kpis">
+      <div class="kpi"><b>399</b><span>candidatures au total, dont 21 cette semaine</span></div>
+      <div class="kpi alert"><b>2,5 %</b><span>débouchent sur un entretien. Objectif : 8 %</span></div>
+      <div class="kpi"><b>15</b><span>relances prêtes dans tes brouillons Gmail</span></div>
+    </div>
+    <p class="src">Source : Sheet Candidatures, lu le 06/11/2026 (10 entretiens sur 399 envois).</p>
+  </section>
+
+  <section aria-labelledby="t">
+    <h2 id="t">À faire ce soir (10 minutes)</h2>
+    <ul class="checks">
+      <li><label><input type="checkbox" id="c1"><div>Relire et envoyer les 15 relances <small>Destinataire vide sauf Brand Sisters : colle l'e-mail du recruteur ou envoie le texte en message LinkedIn. <a href="https://mail.google.com/mail/u/0/#drafts" target="_blank" rel="noopener">Ouvrir les brouillons</a></small></div></label></li>
+      <li><label><input type="checkbox" id="c2"><div>Créer les 2 filtres Gmail ci-dessous <small>Paramètres → Filtres → Créer un filtre → coller la requête → « Ignorer la boîte de réception » + libellé.</small></div></label></li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="r">
+    <h2 id="r">La règle de ciblage</h2>
+    <div class="rule">
+      <ol>
+        <li>Madrid d'abord, Paris ensuite.</li>
+        <li>Growth Manager, CRM Manager, Marketing Manager acquisition. Pas de junior, pas de SEO pur.</li>
+        <li>Score /candidature-generator d'au moins 70, sinon on passe.</li>
+        <li>Chaque candidature part avec un message à une vraie personne de l'entreprise.</li>
+      </ol>
+    </div>
+    <p class="src">Objectif hebdo : 8 à 10 candidatures et 5 messages réseau. Une recommandation interne convertit environ 4 fois mieux qu'une candidature sur un site d'offres (chiffres Jobvite repris par plusieurs agrégateurs, à lire comme une tendance).</p>
+  </section>
+
+  <section aria-labelledby="w">
+    <h2 id="w">Ta semaine</h2>
+    <div class="days">
+      <div class="day"><h3>Dim. 8</h3><ul><li><time>09:00</time><span>Nettoyage n8n v3 (30 min)</span></li></ul></div>
+      <div class="day"><h3>Lun. 9</h3><ul>
+        <li><time>09:00</time><span>Réseau : 5 messages (Flatsy, Consentio, Rocket School…)</span></li>
+        <li><time>10:00</time><span>Relances Amenitiz et zooplus</span></li>
+        <li><time>11:30</time><span>Veille et tri des offres (libellé 💼 Offres)</span></li>
+        <li><time>14:00</time><span class="key">3 candidatures ciblées Madrid</span></li>
+        <li><time>17:30</time><span>Rendez-vous médical</span></li></ul></div>
+      <div class="day"><h3>Mar. 10</h3><ul>
+        <li><time>09:00</time><span>Dernier coup d'œil Pub&amp;Go</span></li>
+        <li><time>11:00</time><span>Optimisation LinkedIn</span></li>
+        <li><time>14:30</time><span class="key">Entretien Pub&amp;Go avec Yaiza (espagnol)</span></li>
+        <li><time>15:00</time><span>Mail de remerciement Pub&amp;Go</span></li>
+        <li><time>15:15</time><span>Automatisation IA</span></li></ul></div>
+      <div class="day"><h3>Mer. 11<small>férié</small></h3><ul>
+        <li><time>09:30</time><span>Python/SQL session 1 (facultative, jour férié)</span></li>
+        <li><time>14:00</time><span class="me">Temps pour moi</span></li></ul></div>
+      <div class="day"><h3>Jeu. 12</h3><ul>
+        <li><time>09:30</time><span>Rendez-vous médical</span></li>
+        <li><time>14:30</time><span>Python/SQL session 2 (projet + Git)</span></li></ul></div>
+      <div class="day"><h3>Ven. 13</h3><ul>
+        <li><time>09:30</time><span class="key">Revue hebdo : relances J+7, KPI, cette page</span></li>
+        <li><time>14:00</time><span class="me">Temps pour moi</span></li>
+        <li><time>17:00</time><span>Tri des sessions Claude (10 min)</span></li></ul></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="f">
+    <h2 id="f">Les 2 filtres Gmail</h2>
+    <div class="q"><strong>📰 Veille (newsletters)</strong>
+      <code id="q1">from:(tldrnewsletter.com OR joinsuperhuman.ai OR beehiiv.com OR order-and-chaos.fr OR sonate.group OR growthhackers.com OR tekkit.io OR jebosseengrandedistribution.fr)</code>
+      <button type="button" data-copy="q1">Copier la requête</button></div>
+    <div class="q"><strong>💼 Offres (alertes emploi)</strong>
+      <code id="q2">from:(jobalert.indeed.com OR match.indeed.com OR jobs@makesense.org OR jobalerts-noreply@linkedin.com OR jobs-listings@linkedin.com)</code>
+      <button type="button" data-copy="q2">Copier la requête</button></div>
+    <p class="src">Apec volontairement exclu : tes conseillers t'écrivent depuis apec.fr.</p>
+  </section>
+
+  <section aria-labelledby="s">
+    <h2 id="s">On arrête</h2>
+    <ul class="stop">
+      <li>Retoucher la mécanique du tracker. Il se lit, il ne se répare plus.</li>
+      <li>Postuler en dessous de 70, ou sans contact dans l'entreprise.</li>
+      <li>Lire les newsletters dans la boîte de réception : elles attendent dans 📰 Veille.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+document.querySelectorAll('.checks input').forEach(function(cb){
+  try{ if(localStorage.getItem('pilot-'+cb.id)==='1') cb.checked=true; }catch(e){}
+  cb.addEventListener('change',function(){ try{ localStorage.setItem('pilot-'+cb.id, cb.checked?'1':'0'); }catch(e){} });
+});
+document.querySelectorAll('[data-copy]').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var el=document.getElementById(btn.dataset.copy), txt=el.textContent;
+    var done=function(){ btn.textContent='Copié'; setTimeout(function(){btn.textContent='Copier la requête';},1500); };
+    var fallback=function(){ var r=document.createRange(); r.selectNodeContents(el); var s=getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent='Texte sélectionné, fais Ctrl+C'; };
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done,fallback); } else fallback();
+  });
+});
+</script>
+
+</html>
