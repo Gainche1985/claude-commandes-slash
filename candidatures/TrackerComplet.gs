@@ -17,6 +17,7 @@
 // ===================== CONFIGURATION =====================
 var CFG = {
   SHEET: 'Candidatures',
+  SPREADSHEET_ID: '1J9SbqQSrsYOjXmo_fdnKQ6aEU8MDo6DC0j17T2GcYs0',
   LABEL_IN: 'Job-2025',                 // libellé posé par tes filtres Gmail
   LABEL_DONE: 'Job-2025-Traite',
   LABEL_REVIEW: 'Job-2025-A-verifier',  // mails que l'IA n'arrive pas à lire / non-candidatures
@@ -136,6 +137,7 @@ function onOpen() {
     .addSeparator()
     .addItem('🩺 Diagnostic', 'diagnostic')
     .addItem('🧹 Nettoyer l\'historique (une fois)', 'nettoyerHistorique')
+    .addItem('➕ Installer le bouton Tracker', 'installerBoutonTracker')
     .addItem('⚙️ Réinstaller les triggers', 'installerTout')
     .addToUi();
 }
@@ -201,7 +203,7 @@ function _traiterThread(sheet, idx, thread) {
   const first = msgs[0];
   const sujet = last.getSubject();
   const expediteur = _email(last.getFrom());
-  const corps = (last.getPlainBody() || '').replace(/\s+/g, ' ').substring(0, 2500);
+  const corps = _texteMail(last);
 
   const info = _geminiAvecRetry(corps, sujet, expediteur);
   if (info === 'QUOTA') return 'QUOTA';
@@ -281,6 +283,20 @@ function _geminiAvecRetry(corps, sujet, expediteur) {
   return 'QUOTA';
 }
 
+/** Texte du mail ; si la version texte est trop pauvre (Indeed…), on ajoute le texte extrait du HTML. */
+function _texteMail(msg) {
+  let t = (msg.getPlainBody() || '').replace(/\s+/g, ' ').trim();
+  if (t.length < 600) {
+    const h = (msg.getBody() || '')
+      .replace(/<(style|script|head)[\s\S]*?<\/\1>/gi, ' ')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"')
+      .replace(/\s+/g, ' ').trim();
+    if (h.length > t.length) t = (t + ' | ' + h).trim();
+  }
+  return t.substring(0, 3000);
+}
+
 function _appelGemini(corps, sujet, expediteur) {
   const key = _geminiKey();
   if (!key) throw new Error('GEMINI_API_KEY manquante (Paramètres du projet → Propriétés du script)');
@@ -296,7 +312,8 @@ Règles :
 - entreprise = l'employeur visé, jamais la plateforme (LinkedIn, Indeed, Welcome to the Jungle, HelloWork, Teamtailor…). Nom court, sans « SAS », sans « .com ».
 - plateforme = canal de candidature (LinkedIn, Welcome to the Jungle, HelloWork, Indeed, Cadremploi, Apec, InfoJobs, Email direct, ou le nom de l'ATS).
 - statut : confirmation de réception = « Envoyé » ; refus = « Refus » ; proposition d'échange/entretien = « Entretien 1 » (« Entretien 2 » si 2e tour) ; autre réponse humaine = « Réponse reçue ».
-- contactEmail = email d'un humain recruteur si présent, sinon "".`;
+- contactEmail = email d'un humain recruteur si présent, sinon "".
+- Confirmations Indeed / LinkedIn / InfoJobs : l'entreprise est l'employeur nommé dans le corps (souvent sous le titre du poste). Un outil cité dans l'intitulé du poste n'est pas l'employeur (« CRM Manager (HubSpot) » : HubSpot est l'outil). Si l'employeur n'apparaît nulle part, entreprise = "".`;
 
   const res = UrlFetchApp.fetch(url, {
     method: 'post',
@@ -608,8 +625,13 @@ function _geminiKey() { return PropertiesService.getScriptProperties().getProper
 function _label(nom) { return GmailApp.getUserLabelByName(nom) || GmailApp.createLabel(nom); }
 function _fmtGmail(d) { return Utilities.formatDate(d, Session.getScriptTimeZone(), 'yyyy/MM/dd'); }
 
+function _ss() {
+  // getActiveSpreadsheet() peut être vide dans l'application Web (bouton Tracker)
+  return SpreadsheetApp.getActiveSpreadsheet() || SpreadsheetApp.openById(CFG.SPREADSHEET_ID);
+}
+
 function _sheet() {
-  const s = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CFG.SHEET);
+  const s = _ss().getSheetByName(CFG.SHEET);
   if (!s) throw new Error('Onglet « ' + CFG.SHEET + ' » introuvable');
   return s;
 }
@@ -848,4 +870,159 @@ function _dashboardABTest(ss, ab) {
     s.getRange(row, 1, 7, 4).setBorder(true, true, true, true, true, true, '#dadce0', SpreadsheetApp.BorderStyle.SOLID);
   });
   [210, 115, 115, 120, 20, 165, 210].forEach((w, i) => s.setColumnWidth(i + 1, w));
+}
+
+
+// ============================================================
+// BOUTON « ➕ Tracker » (06/11/2026)
+// Pour les sites qui n'envoient pas de mail de confirmation (InfoJobs, sites carrière…).
+// Un favori dans Chrome envoie la page d'offre ouverte à cette mini application web,
+// qui crée la ligne dans « Candidatures » (Gemini extrait l'entreprise et le poste).
+//
+// Mise en place : Déployer → Nouveau déploiement → Application Web
+//   Exécuter en tant que : Moi · Qui a accès : Moi uniquement
+// puis menu 🔍 Candidatures → ➕ Installer le bouton Tracker.
+// ============================================================
+
+var BOUTON_BOOKMARKLET = "javascript:(()=>{const W='__W__';const g=s=>{const n=document.querySelector(s);return n?(n.content||n.innerText||''):''};const p=new URLSearchParams({u:location.href,t:document.title,h:g('h1'),o:g('meta[property=\"og:site_name\"]'),x:(document.body.innerText||'').replace(/\\s+/g,' ').slice(0,1200)});window.open(W+'?'+p.toString(),'_blank','width=560,height=420');})()";
+
+/** Reçoit la page d'offre envoyée par le favori et ajoute la candidature. */
+function doGet(e) {
+  const p = (e && e.parameter) || {};
+  if (!p.u) return _pageBouton('ℹ️ Bouton Tracker', 'Clique sur le favori « ➕ Tracker » depuis la page d\'une offre.');
+
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(20000)) return _pageBouton('⏳ Occupé', 'Le tracker est en cours de mise à jour. Réessaie dans une minute.');
+  try {
+    const sheet = _sheet();
+    _assurerEntetes(sheet);
+    const lien = _canoniser(_nettoyerUrl(String(p.u)));
+
+    // Déjà présent ? (même lien d'annonce)
+    const n = sheet.getLastRow() - 1;
+    if (n > 0) {
+      const liens = sheet.getRange(2, COL.LIEN, n, 1).getValues().map(r => String(r[0]));
+      const i = liens.indexOf(lien);
+      if (i !== -1) return _pageBouton('👌 Déjà dans le tracker', 'Ligne ' + (i + 2) + ' : ' + _html(sheet.getRange(i + 2, 1).getValue()));
+    }
+
+    const info = _geminiOffre(p) || {};
+    let entreprise = String(info.entreprise || '').trim();
+    if (!entreprise || ENTREPRISES_BLACKLIST.test(entreprise)) entreprise = 'À compléter';
+    const poste = VALID_POSTES.indexOf(info.poste) !== -1 ? info.poste : 'Inconnu';
+    const host = (lien.match(/^https?:\/\/([^/]+)/) || [])[1] || '';
+    const plateforme = normaliserPlateforme(host, '', lien);
+    const now = new Date();
+
+    const row = _indexer(sheet).prochaineLigne;
+    sheet.getRange(row, 1, 1, 8).setValues([[
+      entreprise, poste, plateforme, info.secteur || 'Non spécifié',
+      info.type || 'Réponse à offre', 'Envoyé', now, lien,
+    ]]);
+    sheet.getRange(row, COL.CONTACT).setValue('Équipe RH');
+    sheet.getRange(row, COL.MAJ).setValue(now);
+    if (entreprise === 'À compléter') sheet.getRange(row, 1).setBackground('#FFE0B2');
+    _trierParDate(sheet);
+
+    return _pageBouton('✅ Ajouté au tracker',
+      '<b>' + _html(entreprise) + '</b><br>' + _html(info.intitule || poste) + ' · ' + _html(plateforme) +
+      (entreprise === 'À compléter' ? '<br><br>⚠️ Entreprise non détectée : complète la cellule orange dans le Sheet.' : ''));
+  } catch (err) {
+    return _pageBouton('❌ Erreur', _html(err.message));
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** Gemini : entreprise + poste à partir de la page d'offre. */
+function _geminiOffre(p) {
+  const key = _geminiKey();
+  if (!key) return null;
+  const prompt =
+`Page d'offre d'emploi sur laquelle Marie Gainche (Growth Marketer) vient de postuler.
+URL : ${p.u}
+Titre de la page : ${p.t || ''}
+Titre principal (h1) : ${p.h || ''}
+Site : ${p.o || ''}
+Début du texte de la page : ${p.x || ''}
+
+Règles :
+- entreprise = l'employeur qui recrute (sur InfoJobs : le nom affiché sous l'intitulé de l'offre). Jamais le site d'emploi (InfoJobs, Indeed, LinkedIn…). Offre confidentielle : "Confidentiel (<ville>)". Introuvable : "".
+- intitule = l'intitulé exact de l'offre.
+- poste = l'élément le plus proche dans la liste imposée.`;
+  const schema = {
+    type: 'OBJECT',
+    properties: {
+      entreprise: { type: 'STRING' },
+      intitule: { type: 'STRING' },
+      poste: { type: 'STRING', enum: VALID_POSTES },
+      secteur: { type: 'STRING' },
+      type: { type: 'STRING', enum: ['Réponse à offre', 'Candidature spontanée'] },
+    },
+    required: ['entreprise', 'intitule', 'poste'],
+  };
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + CFG.GEMINI_MODEL + ':generateContent';
+  for (let i = 1; i <= 2; i++) {
+    const res = UrlFetchApp.fetch(url, {
+      method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+      headers: { 'x-goog-api-key': key },
+      payload: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.1, responseMimeType: 'application/json', responseSchema: schema },
+      }),
+    });
+    const code = res.getResponseCode();
+    if (code === 200) {
+      try {
+        const parts = JSON.parse(res.getContentText()).candidates[0].content.parts;
+        return JSON.parse(parts.map(x => x.text || '').join(''));
+      } catch (e) { return null; }
+    }
+    if (code !== 429 && code !== 503 && code !== 500) return null;
+    Utilities.sleep(3000);
+  }
+  return null;
+}
+
+/** Menu : fenêtre qui fabrique le favori avec l'URL de déploiement. */
+function installerBoutonTracker() {
+  let url = '';
+  try { url = ScriptApp.getService().getUrl() || ''; } catch (e) {}
+  if (!/\/exec$/.test(url)) url = '';
+  const html = HtmlService.createHtmlOutput(
+`<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5">
+<p><b>1.</b> URL de l'application Web (Déployer → Gérer les déploiements → copier l'URL qui finit par <code>/exec</code>) :</p>
+<input id="u" style="width:100%;padding:6px" placeholder="https://script.google.com/macros/s/.../exec" value="${url}" oninput="build()">
+<p><b>2.</b> Affiche la barre de favoris (<b>Ctrl+Maj+B</b>), puis <b>glisse ce bouton dedans</b> :</p>
+<p style="text-align:center"><a id="bm" href="#" style="display:inline-block;padding:8px 16px;background:#1a73e8;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold">➕ Tracker</a></p>
+<p style="color:#666;font-size:12px">Si le glisser ne marche pas : clic droit sur la barre de favoris → Ajouter une page → Nom : <b>➕ Tracker</b>, URL : colle le code ci-dessous.</p>
+<textarea id="c" style="width:100%;height:70px;font-size:11px" readonly onclick="this.select()"></textarea>
+<p id="w" style="color:#c5221f"></p>
+<script>
+var TPL = ${JSON.stringify(BOUTON_BOOKMARKLET)};
+function build(){
+  const w = document.getElementById('u').value.trim();
+  const ok = /^https:\\/\\/script\\.google\\.com\\/.+\\/exec$/.test(w);
+  document.getElementById('w').textContent = ok ? '' : 'Colle d\\'abord l\\'URL qui finit par /exec.';
+  const code = ok ? TPL.replace('__W__', w) : '';
+  document.getElementById('bm').href = code || '#';
+  document.getElementById('c').value = code;
+}
+build();
+</script></div>`).setWidth(560).setHeight(470);
+  SpreadsheetApp.getUi().showModalDialog(html, '➕ Installer le bouton Tracker');
+}
+
+function _pageBouton(titre, msg) {
+  const sheetUrl = 'https://docs.google.com/spreadsheets/d/' + CFG.SPREADSHEET_ID + '/edit';
+  return HtmlService.createHtmlOutput(
+    '<div style="font-family:Arial,sans-serif;padding:16px;font-size:15px;line-height:1.5">' +
+    '<h2 style="margin-top:0">' + titre + '</h2><p>' + msg + '</p>' +
+    (sheetUrl ? '<p><a href="' + sheetUrl + '" target="_blank">Ouvrir le tracker</a></p>' : '') +
+    '<p style="color:#888;font-size:12px">Tu peux fermer cette fenêtre.</p></div>'
+  ).setTitle(titre);
+}
+
+function _html(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }

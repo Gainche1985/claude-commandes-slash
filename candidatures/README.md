@@ -53,6 +53,18 @@ Chaque matin 6h : rafraichirDashboards() (bascule J / J-1)
 4. Exécuter `installerTout` → autoriser.
 5. Une seule fois : Fichier → Créer une copie (sauvegarde), puis menu → 🧹 Nettoyer l'historique.
 
+## Bouton « ➕ Tracker » (sites sans mail de confirmation : InfoJobs, sites carrière…)
+
+- Fichier `BoutonTracker.gs` (inclus dans `TrackerComplet.gs`) : application Web `doGet` + favori Chrome.
+- Déploiement : Déployer → Nouveau déploiement → Application Web · Exécuter en tant que **Moi** · Accès **Moi uniquement**. Puis menu 🔍 Candidatures → ➕ Installer le bouton Tracker (colle l'URL `/exec`, glisse le bouton dans la barre de favoris).
+- Usage : sur la page de l'offre, clic sur « ➕ Tracker » → ligne créée (statut Envoyé, plateforme déduite du site, lien exact). Doublon détecté par le lien. Entreprise non trouvée → « À compléter » en orange.
+- ⚠️ Après chaque modification du code : Déployer → Gérer les déploiements → ✏️ → Version : **Nouvelle version** → Déployer (sinon l'application Web garde l'ancien code). L'URL ne change pas.
+- Erreur « Impossible d'ouvrir le fichier » : plusieurs comptes Google connectés dans Chrome ; utiliser une fenêtre où marie.gainche@gmail.com est le compte par défaut.
+
+## Indeed
+- Les mails `indeedapply@indeed.com` n'ont pas le nom de l'employeur dans leur version texte : depuis le 06/11, le script lit aussi la version HTML (`_texteMail`).
+- Filtre Gmail conseillé : `from:(indeedapply@indeed.com)` → libellé `Job-2025` (les objets varient selon la langue : « Solicitud en Indeed », « Candidatures via Indeed »).
+
 ## Dépannage (runbook)
 
 | Symptôme | Cause probable | Solution |
@@ -93,6 +105,7 @@ Les versions d'origine sont dans [`archive/`](archive/) (clé API retirée).
 
 ## Historique
 
+- **v4.1 (06/11/2026)** : bouton ➕ Tracker, lecture HTML des mails Indeed, rattrapage manuel de 4 candidatures InfoJobs du 30/10 (+ Pub&Go corrigé).
 - **v4 installée le 31/10/2026** : Diagnostic tout ✅ (clé, Gemini, 3 triggers).
 - **v4 (31/10/2026)** : consolidation en 2 fichiers, corrections ci-dessus, menu, diagnostic, nettoyage de l'historique.
 - v3 : import Gmail + Gemini, scan liens séparé, dashboards JS avec graphiques.

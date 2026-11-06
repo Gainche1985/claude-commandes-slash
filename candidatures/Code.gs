@@ -17,6 +17,7 @@
 // ===================== CONFIGURATION =====================
 const CFG = {
   SHEET: 'Candidatures',
+  SPREADSHEET_ID: '1J9SbqQSrsYOjXmo_fdnKQ6aEU8MDo6DC0j17T2GcYs0',
   LABEL_IN: 'Job-2025',                 // libellé posé par tes filtres Gmail
   LABEL_DONE: 'Job-2025-Traite',
   LABEL_REVIEW: 'Job-2025-A-verifier',  // mails que l'IA n'arrive pas à lire / non-candidatures
@@ -136,6 +137,7 @@ function onOpen() {
     .addSeparator()
     .addItem('🩺 Diagnostic', 'diagnostic')
     .addItem('🧹 Nettoyer l\'historique (une fois)', 'nettoyerHistorique')
+    .addItem('➕ Installer le bouton Tracker', 'installerBoutonTracker')
     .addItem('⚙️ Réinstaller les triggers', 'installerTout')
     .addToUi();
 }
@@ -201,7 +203,7 @@ function _traiterThread(sheet, idx, thread) {
   const first = msgs[0];
   const sujet = last.getSubject();
   const expediteur = _email(last.getFrom());
-  const corps = (last.getPlainBody() || '').replace(/\s+/g, ' ').substring(0, 2500);
+  const corps = _texteMail(last);
 
   const info = _geminiAvecRetry(corps, sujet, expediteur);
   if (info === 'QUOTA') return 'QUOTA';
@@ -281,6 +283,20 @@ function _geminiAvecRetry(corps, sujet, expediteur) {
   return 'QUOTA';
 }
 
+/** Texte du mail ; si la version texte est trop pauvre (Indeed…), on ajoute le texte extrait du HTML. */
+function _texteMail(msg) {
+  let t = (msg.getPlainBody() || '').replace(/\s+/g, ' ').trim();
+  if (t.length < 600) {
+    const h = (msg.getBody() || '')
+      .replace(/<(style|script|head)[\s\S]*?<\/\1>/gi, ' ')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"')
+      .replace(/\s+/g, ' ').trim();
+    if (h.length > t.length) t = (t + ' | ' + h).trim();
+  }
+  return t.substring(0, 3000);
+}
+
 function _appelGemini(corps, sujet, expediteur) {
   const key = _geminiKey();
   if (!key) throw new Error('GEMINI_API_KEY manquante (Paramètres du projet → Propriétés du script)');
@@ -296,7 +312,8 @@ Règles :
 - entreprise = l'employeur visé, jamais la plateforme (LinkedIn, Indeed, Welcome to the Jungle, HelloWork, Teamtailor…). Nom court, sans « SAS », sans « .com ».
 - plateforme = canal de candidature (LinkedIn, Welcome to the Jungle, HelloWork, Indeed, Cadremploi, Apec, InfoJobs, Email direct, ou le nom de l'ATS).
 - statut : confirmation de réception = « Envoyé » ; refus = « Refus » ; proposition d'échange/entretien = « Entretien 1 » (« Entretien 2 » si 2e tour) ; autre réponse humaine = « Réponse reçue ».
-- contactEmail = email d'un humain recruteur si présent, sinon "".`;
+- contactEmail = email d'un humain recruteur si présent, sinon "".
+- Confirmations Indeed / LinkedIn / InfoJobs : l'entreprise est l'employeur nommé dans le corps (souvent sous le titre du poste). Un outil cité dans l'intitulé du poste n'est pas l'employeur (« CRM Manager (HubSpot) » : HubSpot est l'outil). Si l'employeur n'apparaît nulle part, entreprise = "".`;
 
   const res = UrlFetchApp.fetch(url, {
     method: 'post',
@@ -608,8 +625,13 @@ function _geminiKey() { return PropertiesService.getScriptProperties().getProper
 function _label(nom) { return GmailApp.getUserLabelByName(nom) || GmailApp.createLabel(nom); }
 function _fmtGmail(d) { return Utilities.formatDate(d, Session.getScriptTimeZone(), 'yyyy/MM/dd'); }
 
+function _ss() {
+  // getActiveSpreadsheet() peut être vide dans l'application Web (bouton Tracker)
+  return SpreadsheetApp.getActiveSpreadsheet() || SpreadsheetApp.openById(CFG.SPREADSHEET_ID);
+}
+
 function _sheet() {
-  const s = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CFG.SHEET);
+  const s = _ss().getSheetByName(CFG.SHEET);
   if (!s) throw new Error('Onglet « ' + CFG.SHEET + ' » introuvable');
   return s;
 }
