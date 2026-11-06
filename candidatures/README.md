@@ -61,6 +61,8 @@ Chaque matin 6h : rafraichirDashboards() (bascule J / J-1)
 - ⚠️ Après chaque modification du code : Déployer → Gérer les déploiements → ✏️ → Version : **Nouvelle version** → Déployer (sinon l'application Web garde l'ancien code). L'URL ne change pas.
 - « Impossible d'ouvrir le fichier » = accès « Moi uniquement » + navigateur (Comet) pas connecté au bon compte Google → d'où l'accès « Tout le monde » + clé. Changer la clé : supprimer BOUTON_TOKEN des Propriétés du script puis réinstaller le favori.
 
+**Statut 06/11/2026 : bouton mis de côté.** Serveur testé OK (paramètres reçus, clé vérifiée, code à jour), mais la création du favori échoue chez Marie (Comet et Chrome). Remplacé par la **synchro InfoJobs hebdo** : la routine du vendredi (`[AUTO] Vendredi · Revue hebdo tracker candidatures`) demande de coller la page InfoJobs « Mis candidaturas » (Ctrl+A, Ctrl+C) ; Claude ajoute les candidatures absentes et met à jour les statuts (Inscrito → Envoyé, CV leído / En proceso → En cours, Finalista → Entretien 1, Descartado → Refus).
+
 ## Indeed
 - Les mails `indeedapply@indeed.com` n'ont pas le nom de l'employeur dans leur version texte : depuis le 06/11, le script lit aussi la version HTML (`_texteMail`).
 - Filtre Gmail conseillé : `from:(indeedapply@indeed.com)` → libellé `Job-2025` (les objets varient selon la langue : « Solicitud en Indeed », « Candidatures via Indeed »).
